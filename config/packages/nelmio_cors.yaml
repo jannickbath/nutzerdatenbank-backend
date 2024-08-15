@@ -1,0 +1,14 @@
+nelmio_cors:
+    defaults:
+        allow_credentials: false
+        allow_origin: ['*']
+        allow_headers: ['Content-Type', 'Authorization']
+        expose_headers: []
+        allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE']
+        max_age: 3600
+    paths:
+        '^/users/':
+            allow_origin: ['*']
+            allow_headers: ['Content-Type', 'Authorization']
+            allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE']
+            max_age: 3600
