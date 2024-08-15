@@ -29,7 +29,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/get_users', name: 'get_users')]
+    #[Route('/users', name: 'get_users', methods: ["GET"])]
     public function get_users(Request $req): JsonResponse
     {
         $this->req = $req;
@@ -46,14 +46,14 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/create_user', name: 'create_user')]
+    #[Route('/users', name: 'create_user', methods: ["POST"])]
     public function create_user(Request $req): JsonResponse
     {
         $this->req = $req;
         $user = new User();
         $adress = new Adress();
 
-        foreach ($this->req->query->all() as $key => $value) {
+        foreach ($req->request->all() as $key => $value) {
             global $$key; // make the variable accessible outside of the loop
             $$key = $value;
         }
@@ -120,8 +120,8 @@ class ApiController extends AbstractController
         $user->setPersonnelNumber($personnel_number);
         $user->setAdressId($adress->getId());
 
-        if (!empty($personioNumber)) {
-            $user->setPersonioNumber($personioNumber);
+        if (!empty($personio_number)) {
+            $user->setPersonioNumber($personio_number);
         }
 
         if (!empty($description)) {
