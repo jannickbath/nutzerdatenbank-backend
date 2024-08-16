@@ -38,6 +38,23 @@ class UserRepository extends ServiceEntityRepository
         return $this->executeSQLQuery($sql);
     }
 
+    public function getUsersBySearchAndCategory(string $search, array $categories): array
+    {       
+        $sql = "SELECT * FROM $this->tableName AS u ";
+
+        foreach($categories as $key => $category) {
+            if ($key === 0) {
+                $sql .= "WHERE u.$category LIKE '%$search%' ";
+            }else {
+                $sql .= "OR u.$category LIKE '%$search% '";
+            }
+        }
+
+        $sql .= ";";
+
+        return $this->executeSQLQuery($sql);
+    }
+
     private function executeSQLQuery(string $query) {
         $conn = $this->getEntityManager()->getConnection();
         $preparedStatement = $conn->prepare($query);
