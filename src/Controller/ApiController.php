@@ -33,15 +33,18 @@ class ApiController extends AbstractController
     public function get_users(Request $req): JsonResponse
     {
         $this->req = $req;
-        $userEntities = $this->entityManager->getRepository(User::class)->findAll();
-        $userArr = [];
-        
-        foreach ($userEntities as $entity) {
-            $userArr = [ ...$userArr, $this->entityToArr($entity) ];
+        $search = $req->query->get("search");
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+        if (empty($search)) {
+            return $this->json([
+                'users' => $userRepository->getAllUsers(),
+                'code' => 200,
+            ]);
         }
         
         return $this->json([
-            'users' => $userArr,
+            'users' => $userRepository->getUsersBySearch($search),
             'code' => 200,
         ]);
     }
