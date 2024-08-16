@@ -35,6 +35,8 @@ class ApiController extends AbstractController
         $this->req = $req;
         $search = $req->query->get("search");
         $filter = $req->query->get("filter");
+        $limit = $req->query->get("limit") ?? 5;
+        $options = ["limit" => $limit];
         $categories = [];
         $userRepository = $this->entityManager->getRepository(User::class);
 
@@ -44,20 +46,20 @@ class ApiController extends AbstractController
 
         if (empty($search)) {
             return $this->json([
-                'users' => $userRepository->getAllUsers(),
+                'users' => $userRepository->getAllUsers($options),
                 'code' => 200,
             ]);
         }
 
         if (!empty($categories)) {
             return $this->json([
-                'users' => $userRepository->getUsersBySearchAndCategory($search, $categories),
+                'users' => $userRepository->getUsersBySearchAndCategory($search, $categories, $options),
                 'code' => 200,
             ]);
         }
         
         return $this->json([
-            'users' => $userRepository->getUsersBySearch($search),
+            'users' => $userRepository->getUsersBySearch($search, $options),
             'code' => 200,
         ]);
     }

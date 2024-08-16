@@ -18,13 +18,21 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function getAllUsers(): array
-    {        
-        return $this->executeSQLQuery("SELECT * FROM $this->tableName;");
+    public function getAllUsers(array $options = []): array
+    {   
+        $sql = "SELECT * FROM $this->tableName";
+        $limit = $options["limit"];
+
+        if (!empty($limit)) {
+            $sql .= " LIMIT $limit";
+        }
+
+        return $this->executeSQLQuery($sql . ";");
     }
 
-    public function getUsersBySearch(string $search): array
-    {       
+    public function getUsersBySearch(string $search, array $options = []): array
+    {    
+        $limit = $options["limit"];
         $sql = "
             SELECT * FROM $this->tableName AS u
               WHERE u.first_name LIKE '%$search%'
@@ -32,15 +40,20 @@ class UserRepository extends ServiceEntityRepository
                 OR u.username LIKE '%$search%'
                 OR u.email LIKE '%$search%'
                 OR u.personnel_number LIKE '%$search%'
-                OR u.personio_number LIKE '%$search%';
+                OR u.personio_number LIKE '%$search%'
         ";
 
-        return $this->executeSQLQuery($sql);
+        if (!empty($limit)) {
+            $sql .= " LIMIT $limit";
+        }
+
+        return $this->executeSQLQuery($sql . ";");
     }
 
-    public function getUsersBySearchAndCategory(string $search, array $categories): array
+    public function getUsersBySearchAndCategory(string $search, array $categories, array $options = []): array
     {       
         $sql = "SELECT * FROM $this->tableName AS u ";
+        $limit = $options["limit"];
 
         foreach($categories as $key => $category) {
             if ($key === 0) {
@@ -50,9 +63,11 @@ class UserRepository extends ServiceEntityRepository
             }
         }
 
-        $sql .= ";";
+        if (!empty($limit)) {
+            $sql .= " LIMIT $limit";
+        }
 
-        return $this->executeSQLQuery($sql);
+        return $this->executeSQLQuery($sql . ";");
     }
 
     private function executeSQLQuery(string $query) {
