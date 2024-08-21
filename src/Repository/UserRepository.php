@@ -22,9 +22,14 @@ class UserRepository extends ServiceEntityRepository
     {   
         $sql = "SELECT * FROM $this->tableName";
         $limit = $options["limit"];
+        $offset = $options["offset"];
 
         if (!empty($limit)) {
             $sql .= " LIMIT $limit";
+        }
+
+        if (!empty($offset)) {
+            $sql .= " OFFSET $offset";
         }
 
         return $this->executeSQLQuery($sql . ";");
@@ -33,6 +38,7 @@ class UserRepository extends ServiceEntityRepository
     public function getUsersBySearch(string $search, array $options = []): array
     {    
         $limit = $options["limit"];
+        $offset = $options["offset"];
         $sql = "
             SELECT * FROM $this->tableName AS u
               WHERE u.first_name LIKE '%$search%'
@@ -47,6 +53,10 @@ class UserRepository extends ServiceEntityRepository
             $sql .= " LIMIT $limit";
         }
 
+        if (!empty($offset)) {
+            $sql .= " OFFSET $offset";
+        }
+
         return $this->executeSQLQuery($sql . ";");
     }
 
@@ -54,6 +64,7 @@ class UserRepository extends ServiceEntityRepository
     {       
         $sql = "SELECT * FROM $this->tableName AS u ";
         $limit = $options["limit"];
+        $offset = $options["offset"];
 
         foreach($categories as $key => $category) {
             if ($key === 0) {
@@ -65,6 +76,10 @@ class UserRepository extends ServiceEntityRepository
 
         if (!empty($limit)) {
             $sql .= " LIMIT $limit";
+        }
+
+        if (!empty($offset)) {
+            $sql .= " OFFSET $offset";
         }
 
         return $this->executeSQLQuery($sql . ";");

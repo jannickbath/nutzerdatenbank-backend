@@ -35,8 +35,9 @@ class ApiController extends AbstractController
         $this->req = $req;
         $search = $req->query->get("search");
         $filter = $req->query->get("filter");
-        $limit = $req->query->get("limit") ?? 5;
-        $options = ["limit" => $limit];
+        $limit = $req->query->get("limit") ?? 4;
+        $offset = $req->query->get("offset") ?? 0;
+        $options = ["limit" => $limit, "offset" => $offset];
         $categories = [];
         $userRepository = $this->entityManager->getRepository(User::class);
 
