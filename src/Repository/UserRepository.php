@@ -18,6 +18,12 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    public function getUserById(int $id, array $options = []) {
+        $sql = "SELECT * FROM $this->tableName WHERE id=$id";
+
+        return $this->executeSQLQuery($sql . ";"); 
+    }
+
     public function getAllUsers(array $options = []): array
     {   
         $sql = "SELECT * FROM $this->tableName";

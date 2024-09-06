@@ -37,9 +37,26 @@ class ApiController extends AbstractController
         $filter = $req->query->get("filter");
         $limit = $req->query->get("limit") ?? 4;
         $offset = $req->query->get("offset") ?? 0;
+        $id = $req->query->get("id");
         $options = ["limit" => $limit, "offset" => $offset];
         $categories = [];
         $userRepository = $this->entityManager->getRepository(User::class);
+
+        // Specific user id given -> fetch user details
+        if ($id != null || $id === 0) {
+            $user = $userRepository->getUserById($id);
+            
+            if (empty($user)) {
+                return $this->json([
+                    "users" => [],
+                    "error" => "User-ID $id does not exist."
+                ]);
+            }
+
+            return $this->json([
+                "users" => $user
+            ]);
+        }
 
         if (!empty($filter)) {
             $categories = explode(",", $filter);
