@@ -19,7 +19,11 @@ class UserRepository extends ServiceEntityRepository
     }
 
     public function getUserById(int $id, array $options = []) {
-        $sql = "SELECT * FROM $this->tableName WHERE id=$id";
+        $sql = "
+        SELECT * FROM $this->tableName
+          JOIN adress ON adress.id=$this->tableName.adress_id 
+          WHERE $this->tableName.id=$id
+        ";
 
         return $this->executeSQLQuery($sql . ";"); 
     }
