@@ -1,6 +1,7 @@
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive 
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Copy all files & folders into /project
 COPY . /project
@@ -37,8 +38,9 @@ RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /bin/composer
 
-RUN composer require symfony/maker-bundle --dev
-RUN composer require orm symfony/serializer symfony/property-access nelmio/cors-bundle
+RUN composer install --no-scripts
+RUN composer require --no-scripts symfony/maker-bundle --dev
+RUN composer require --no-scripts orm symfony/serializer symfony/property-access nelmio/cors-bundle
 
 # Expose the port Symfony server will run on
 EXPOSE 8000
