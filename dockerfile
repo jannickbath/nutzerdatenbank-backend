@@ -8,10 +8,11 @@ COPY . /project
 
 WORKDIR /project
 
-# Install PHP and necessary extensions
+# Install PHP, necessary extensions, and Nginx
 RUN apt update && apt upgrade --yes
 RUN apt-get update && apt-get install -y \
     curl \
+    nginx \
     php8.1 \
     php8.1-fpm \
     php8.1-opcache \
@@ -38,12 +39,16 @@ RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /bin/composer
 
+# Install dependencies
 RUN composer install --no-scripts
 RUN composer require --no-scripts symfony/maker-bundle --dev
 RUN composer require --no-scripts orm symfony/serializer symfony/property-access nelmio/cors-bundle
 
-# Expose the port Symfony server will run on
-EXPOSE 8000
+# Copy Nginx configuration
+COPY nginx.conf /etc/nginx/sites-available/default
 
-# Start Symfony server
-CMD symfony server:start --no-interaction --allow-http --port=8000
+# Start PHP-FPM and Nginx
+CMD service php8.1-fpm start && nginx -g 'daemon off;'
+
+# Expose HTTP port
+EXPOSE 80
