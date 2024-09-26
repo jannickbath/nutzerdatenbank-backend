@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Adress;
 use App\Entity\User;
+use App\Repository\AdressRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,18 +18,7 @@ class ApiController extends AbstractController
 {
     private Request|null $req = null;
 
-    public function __construct(private EntityManagerInterface $entityManager) { }
-
-    #[Route('/test', name: 'app_api')]
-    public function index(Request $req): JsonResponse
-    {
-        $this->req = $req;
-        
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/ApiController.php',
-        ]);
-    }
+    public function __construct(private EntityManagerInterface $entityManager, private UserRepository $uR, private AdressRepository $aR) { }
 
     #[Route('/users', name: 'get_users', methods: ["GET"])]
     public function get_users(Request $req): JsonResponse
@@ -94,6 +85,106 @@ class ApiController extends AbstractController
             $$key = $value;
         }
 
+        $this->checkForRequiredUserFields($req);
+
+        // Add adress fields
+        $adress->setStreet($street);
+        $adress->setPlz($plz);
+        $adress->setCity($city);
+        $this->updateDb($adress);
+
+        // Add user fields
+        $user->setFirstName($first_name);
+        $user->setLastName($last_name);
+        $user->setEmail($email);
+        $user->setPersonnelNumber($personnel_number);
+        $user->setAdressId($adress->getId());
+
+        if (!empty($personio_number)) {
+            $user->setPersonioNumber($personio_number);
+        }
+
+        if (!empty($description)) {
+            $user->setDescription($description);
+        }
+
+        if (!empty($username)) {
+            $user->setUsername($username);
+        }
+
+        if (!empty($password)) {
+            $user->setPassword($password);
+        }
+
+        $this->updateDb($user);
+        
+        return $this->json([
+            'text' => 'Success. User created.',
+            'code' => 200,
+        ]); 
+    }
+
+    #[Route('/users/update', name: 'update_user', methods: ["POST"])]
+    public function update_user(Request $req): JsonResponse
+    {
+        foreach ($req->request->all() as $key => $value) {
+            global $$key; // make the variable accessible outside of the loop
+            $$key = $value;
+        }
+
+        // Id is provided by a hidden input field
+        $user = $this->uR->find($id);
+        $adress = $this->aR->find($user->getAdressId());
+
+        if (empty($user)) {
+            return $this->json([
+                'text' => 'Couldnt find the requested user.',
+                'code' => 400,
+            ]);
+        }
+
+        $this->checkForRequiredUserFields($req);
+
+        // Add adress fields
+        $adress->setStreet($street);
+        $adress->setPlz($plz);
+        $adress->setCity($city);
+        $this->updateDb($adress);
+
+        // Add user fields
+        $user->setFirstName($first_name);
+        $user->setLastName($last_name);
+        $user->setEmail($email);
+        $user->setPersonnelNumber($personnel_number);
+        $user->setAdressId($adress->getId());
+
+        if (!empty($personio_number)) {
+            $user->setPersonioNumber($personio_number);
+        }
+
+        if (!empty($description)) {
+            $user->setDescription($description);
+        }
+
+        if (!empty($username)) {
+            $user->setUsername($username);
+        }
+
+        if (!empty($password)) {
+            $user->setPassword($password);
+        }
+
+        $this->updateDb($user);
+
+        return new JsonResponse(["code" => 200]);
+    }
+
+    private function checkForRequiredUserFields(Request $req) {
+        foreach ($req->request->all() as $key => $value) {
+            global $$key; // make the variable accessible outside of the loop
+            $$key = $value;
+        }
+
         if (empty($first_name)) {
             return $this->json([
                 'text' => 'Bad Request. Please provide a first name.',
@@ -143,41 +234,6 @@ class ApiController extends AbstractController
                 'code' => 400,
             ]);
         }
-
-        $adress->setStreet($street);
-        $adress->setPlz($plz);
-        $adress->setCity($city);
-        $this->updateDb($adress);
-
-        $user = new User();
-        $user->setFirstName($first_name);
-        $user->setLastName($last_name);
-        $user->setEmail($email);
-        $user->setPersonnelNumber($personnel_number);
-        $user->setAdressId($adress->getId());
-
-        if (!empty($personio_number)) {
-            $user->setPersonioNumber($personio_number);
-        }
-
-        if (!empty($description)) {
-            $user->setDescription($description);
-        }
-
-        if (!empty($username)) {
-            $user->setUsername($username);
-        }
-
-        if (!empty($password)) {
-            $user->setPassword($password);
-        }
-
-        $this->updateDb($user);
-        
-        return $this->json([
-            'text' => 'Success. User created.',
-            'code' => 200,
-        ]); 
     }
 
     private function updateDb(object $entity) {
