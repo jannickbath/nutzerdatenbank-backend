@@ -179,6 +179,45 @@ class ApiController extends AbstractController
         return new JsonResponse(["code" => 200]);
     }
 
+    #[Route('/db/columns', name: 'list_columns', methods: ["GET"])]
+    public function listColumns(Request $req) {
+        $tableName = $req->query->get("tableName");
+        $columnsList = [];
+
+        // Hole den SchemaManager
+        $connection = $this->entityManager->getConnection();
+        $schemaManager = $connection->createSchemaManager();
+
+        // Spalteninformationen abrufen
+        $columns = $schemaManager->listTableColumns($tableName);
+
+        foreach ($columns as $col) {
+            $name = $col->getName();
+            $type = $col->getType()::class;
+            $columnsList = [...$columnsList, $name => $type];
+        }
+
+        return new JsonResponse(["columns"=> $columnsList]);
+    }
+
+    #[Route('/db/tables', name: 'list_tables', methods: ["GET"])]
+    public function listTables(Request $req) {
+        $tableList = [];
+
+        // Hole den SchemaManager
+        $connection = $this->entityManager->getConnection();
+        $schemaManager = $connection->createSchemaManager();
+
+        $tables = $schemaManager->listTables();
+
+        foreach ($tables as $table) {
+            $name = $table->getName();
+            $tableList = [...$tableList, $name];
+        }
+        
+        return new JsonResponse(["tables"=> $tableList]);
+    }
+
     private function checkForRequiredUserFields(Request $req) {
         foreach ($req->request->all() as $key => $value) {
             global $$key; // make the variable accessible outside of the loop
