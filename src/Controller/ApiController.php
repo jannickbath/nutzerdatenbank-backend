@@ -184,6 +184,10 @@ class ApiController extends AbstractController
         $tableName = $req->query->get("tableName");
         $columnsList = [];
 
+        if (empty($tableName)) {
+            return new JsonResponse(["code" => 400, "text" => "Please provide a table name."]);
+        }
+
         // Hole den SchemaManager
         $connection = $this->entityManager->getConnection();
         $schemaManager = $connection->createSchemaManager();
@@ -214,8 +218,36 @@ class ApiController extends AbstractController
             $name = $table->getName();
             $tableList = [...$tableList, $name];
         }
-        
+
         return new JsonResponse(["tables"=> $tableList]);
+    }
+
+    #[Route('/db/add-column', methods: ['GET'])]
+    public function addColumn(Request $req): JsonResponse
+    {
+        // Name und Typ der Spalte aus der Anfrage holen
+        $columnName = $req->get('columnName');
+        $columnType = $req->get('columnType');
+        $tableName = $req->get('tableName');
+
+        // Sicherstellen, dass Spaltenname und Typ vorhanden sind
+        if (!$columnName || !$columnType) {
+            return new JsonResponse(['error' => 'Invalid column name or type'], 400);
+        }
+
+        // Zugriff auf das DBAL-Connection-Objekt über den EntityManager
+        $connection = $this->entityManager->getConnection();
+
+        // SQL-Query, um eine Spalte hinzuzufügen
+        $sql = sprintf('ALTER TABLE %s ADD %s %s', $tableName, $columnName, $columnType);
+
+        try {
+            // SQL-Statement ausführen
+            $connection->executeStatement($sql);
+            return new JsonResponse(['message' => 'Column added successfully']);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
     }
 
     private function checkForRequiredUserFields(Request $req) {
