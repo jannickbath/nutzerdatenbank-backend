@@ -235,6 +235,10 @@ class ApiController extends AbstractController
             return new JsonResponse(['error' => 'Invalid column name or type'], 400);
         }
 
+        if (!$tableName) {
+            return new JsonResponse(['error' => 'Invalid table name'], 400);
+        }
+
         // Zugriff auf das DBAL-Connection-Objekt über den EntityManager
         $connection = $this->entityManager->getConnection();
 
@@ -245,6 +249,38 @@ class ApiController extends AbstractController
             // SQL-Statement ausführen
             $connection->executeStatement($sql);
             return new JsonResponse(['message' => 'Column added successfully']);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    #[Route('/db/delete-column', methods: ['GET'])]
+    public function deleteColumn(Request $request): JsonResponse
+    {
+        // Get column name from the request
+        $columnName = $request->get('columnName');
+        $tableName = $request->get('tableName');
+
+        // Ensure the column name is provided
+        if (!$columnName) {
+            return new JsonResponse(['error' => 'Invalid column name'], 400);
+        }
+
+        // Ensure the table name is provided
+        if (!$tableName) {
+            return new JsonResponse(['error' => 'Invalid table name'], 400);
+        }
+
+        // Access the DBAL connection via the EntityManager
+        $connection = $this->entityManager->getConnection();
+
+        // SQL query to drop the column
+        $sql = sprintf('ALTER TABLE %s DROP COLUMN %s', $tableName, $columnName);
+
+        try {
+            // Execute the SQL statement
+            $connection->executeStatement($sql);
+            return new JsonResponse(['message' => 'Column deleted successfully']);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
