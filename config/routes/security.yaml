@@ -1,0 +1,6 @@
+_security_logout:
+    resource: security.route_loader.logout
+    type: service
+login:
+    path: /login
+    methods: [POST]

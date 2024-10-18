@@ -20,7 +20,7 @@ class ApiController extends AbstractController
 
     public function __construct(private EntityManagerInterface $entityManager, private UserRepository $uR, private AdressRepository $aR) { }
 
-    #[Route('/users', name: 'get_users', methods: ["GET"])]
+    #[Route('/api/users', name: 'get_users', methods: ["GET"])]
     public function get_users(Request $req): JsonResponse
     {
         $this->req = $req;
@@ -73,7 +73,7 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/users', name: 'create_user', methods: ["POST"])]
+    #[Route('/api/users', name: 'create_user', methods: ["POST"])]
     public function create_user(Request $req): JsonResponse
     {
         $this->req = $req;
@@ -124,7 +124,7 @@ class ApiController extends AbstractController
         ]); 
     }
 
-    #[Route('/users/update', name: 'update_user', methods: ["POST"])]
+    #[Route('/api/users/update', name: 'update_user', methods: ["POST"])]
     public function update_user(Request $req): JsonResponse
     {
         foreach ($req->request->all() as $key => $value) {
@@ -179,7 +179,7 @@ class ApiController extends AbstractController
         return new JsonResponse(["code" => 200]);
     }
 
-    #[Route('/db/columns', name: 'list_columns', methods: ["GET"])]
+    #[Route('/api/db/columns', name: 'list_columns', methods: ["GET"])]
     public function listColumns(Request $req) {
         $tableName = $req->query->get("tableName");
         $columnsList = [];
@@ -204,7 +204,7 @@ class ApiController extends AbstractController
         return new JsonResponse(["columns"=> $columnsList]);
     }
 
-    #[Route('/db/tables', name: 'list_tables', methods: ["GET"])]
+    #[Route('/api/db/tables', name: 'list_tables', methods: ["GET"])]
     public function listTables(Request $req) {
         $tableList = [];
 
@@ -222,7 +222,7 @@ class ApiController extends AbstractController
         return new JsonResponse(["tables"=> $tableList]);
     }
 
-    #[Route('/db/add-column', methods: ['GET'])]
+    #[Route('/api/db/add-column', methods: ['GET'])]
     public function addColumn(Request $req): JsonResponse
     {
         // Name und Typ der Spalte aus der Anfrage holen
@@ -254,7 +254,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/db/delete-column', methods: ['GET'])]
+    #[Route('/api/db/delete-column', methods: ['GET'])]
     public function deleteColumn(Request $request): JsonResponse
     {
         // Get column name from the request
