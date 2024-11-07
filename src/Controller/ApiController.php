@@ -73,6 +73,13 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[Route('/api/validateToken', name: 'validate_token', methods: ["POST"])]
+    public function validateToken(Request $req): JsonResponse
+    {
+        // If the token is not given or the token is invalid you will get a response in the same format. You will get a 4** error response code.
+        return new JsonResponse(["code" => 200, "message" => "Success; Token valid"]);
+    }
+
     #[Route('/api/users', name: 'create_user', methods: ["POST"])]
     public function create_user(Request $req): JsonResponse
     {
