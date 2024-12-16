@@ -8,7 +8,6 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
-/bin
 /migrations
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem

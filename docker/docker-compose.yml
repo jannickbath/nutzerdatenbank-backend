@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+    php:
+        build:
+            context: ./php
+            args:
+                TIMEZONE: ${TIMEZONE}
+        volumes:
+            - ../:/var/www/symfony:cached
+            - symfony_app_var:/var/www/symfony/var
+            - symfony_app_vendor:/var/www/symfony/vendor
+            - ./index.php:/var/www/index.php
+        networks:
+            - symfony_app
+            - db_network
+    nginx:
+        build:
+            context: ./nginx
+        volumes:
+            - ../:/var/www/symfony:cached
+            - ./index.php:/var/www/index.php
+            - symfony_app_var:/var/www/symfony/var
+            - symfony_app_vendor:/var/www/symfony/vendor
+        ports:
+            - 8082:80
+        networks:
+            - symfony_app
+            - db_network
+        env_file:
+            - .env.nginx.local
+
+volumes:
+    symfony_app_var:
+    symfony_app_vendor:
+
+networks:
+  traefik_net:
+    external: true
+  db_network:
+    external: true
+  symfony_app:
+    external: true

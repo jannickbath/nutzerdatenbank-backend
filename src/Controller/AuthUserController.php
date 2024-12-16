@@ -23,9 +23,23 @@ class AuthUserController extends AbstractController
         $this->entityManager = $em;
     }
 
+    /**
+     * This endpoint is responsible for registering a new user. The login for the user is handled by the jwt-token bundle.
+     */
     #[Route('/auth/register', name: 'register', methods: ["POST"])]
     public function register(Request $request): Response
     {
+        $username = $request->get('username');
+        $password = $request->get('password');
+
+        if (empty($username)) {
+            return new Response('Error. Please provide a username.');
+        }
+
+        if (empty($password)) {
+            return new Response('Error. Please provide a password.');
+        }
+
         $user = new AuthUser();
         $user->setUsername($request->get('username'));
 
