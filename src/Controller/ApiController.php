@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -227,6 +228,29 @@ class ApiController extends AbstractController
         }
 
         return new JsonResponse(["tables"=> $tableList]);
+    }
+
+    #[Route('/api/microsoft_users', name: 'microsoft_users', methods: ["GET"])]
+    public function listMicrosoftUsers(Request $req) {
+        $url = 'https://graph.microsoft.com/v1.0/users';
+        $search = $req->query->get("search") ?? "";
+        $limit = $req->query->get("limit") ?? 10;
+        $urlParams = '?$top=' . $limit . '&$search="displayName:' . $search . '"';
+        $fullUrl = $url . $urlParams;
+
+        if (empty($search)) {
+            return new JsonResponse(["error" => true, "message" => "Please provide a search term in the query."]);
+        }
+
+        $client = new  \GuzzleHttp\Client();
+        $response = $client->request('GET', $fullUrl, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $_ENV["Microsoft_JWT_TOKEN"],
+                'ConsistencyLevel' => 'eventual'
+            ]
+        ]);
+
+        return new JsonResponse(json_decode($response->getBody()));
     }
 
     #[Route('/api/db/add-column', methods: ['GET'])]
