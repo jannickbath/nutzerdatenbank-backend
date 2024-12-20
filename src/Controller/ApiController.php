@@ -253,6 +253,58 @@ class ApiController extends AbstractController
         return new JsonResponse(json_decode($response->getBody()));
     }
 
+    #[Route('/api/merged_users', name: 'merged_users', methods: ["GET"])]
+    public function listMergedUsers(Request $req) {
+        $microsoftUsers = $this->getMicrosoftUsers($req);
+        $personioUsers = [];
+        // etc... / merge data here
+
+        return new JsonResponse($microsoftUsers);
+    }
+
+    private function getMicrosoftUsers(Request $req) {
+        $url = 'https://graph.microsoft.com/v1.0/users';
+        // Microsoft API-Parameters
+        $search = $req->query->get("search") ?? "";
+        $limit = $req->query->get("limit") ?? 10;
+        $count = true; // Retrieve total amount of matches
+        $expand = "manager"; // Also include related infos about the (manager)
+        $filter = "startswith(givenName, 'J')"; // Filters results based on specific criteria
+        $skip = 10; // Skip the first 10 users
+        $top = 5; // total page size of 5 users
+
+        // $urlParams = '?$top=' . $limit . '&$search="displayName:' . $search . '"';
+        $urlParams = '?$top=' . $limit . '&' . $this->getQueryParameterByPropertyName("displayName", $search);
+
+        $fullUrl = $url . $urlParams;
+
+        if (empty($search)) {
+            return [];
+        }
+
+        $client = new  \GuzzleHttp\Client();
+        $response = $client->request('GET', $fullUrl, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $_ENV["Microsoft_JWT_TOKEN"],
+                'ConsistencyLevel' => 'eventual'
+            ]
+        ]);
+
+        return json_decode($response->getBody());
+    }
+
+    private function getQueryParameterByPropertyName(string $propertyName, string $search): string {
+        return '$search="' . $propertyName . ":" . $search . "\"";
+    }
+
+    private function getPersonioUsers() {
+        
+    }
+
+    private function getSnipeItAssets() {
+        
+    }
+
     #[Route('/api/db/add-column', methods: ['GET'])]
     public function addColumn(Request $req): JsonResponse
     {

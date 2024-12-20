@@ -1,0 +1,33 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\AuthUser
+                property: username
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        login:
+            pattern:  ^/login
+            stateless: true
+            json_login:
+                check_path: /login
+                username_path: username
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern:   ^/api
+            stateless: true
+            provider: app_user_provider
+            jwt: ~  # Verwendung des standardmäßigen JWT-Authentikators
+
+    access_control:
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
