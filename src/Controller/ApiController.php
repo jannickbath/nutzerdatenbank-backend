@@ -265,22 +265,27 @@ class ApiController extends AbstractController
     private function getMicrosoftUsers(Request $req) {
         $url = 'https://graph.microsoft.com/v1.0/users';
         // Microsoft API-Parameters
-        $search = $req->query->get("search") ?? "";
+        $search = $req->query->get("search") ?? ""; //propertyName:propertyValue
         $limit = $req->query->get("limit") ?? 10;
         $count = true; // Retrieve total amount of matches
         $expand = "manager"; // Also include related infos about the (manager)
         $filter = "startswith(givenName, 'J')"; // Filters results based on specific criteria
         $skip = 10; // Skip the first 10 users
-        $top = 5; // total page size of 5 users
+        $top = $req->query->get("top"); // total page size of 5 users
 
-        // $urlParams = '?$top=' . $limit . '&$search="displayName:' . $search . '"';
-        $urlParams = '?$top=' . $limit . '&' . $this->getQueryParameterByPropertyName("displayName", $search);
+        $urlParams = [];
+        $urlParamString = "";
 
-        $fullUrl = $url . $urlParams;
-
-        if (empty($search)) {
-            return [];
+        if (!empty($top)) {
+            $urlParams = [...$urlParams, '$top=' . $limit];
         }
+
+        if (!empty($search)) {
+            $urlParams = [...$urlParams, '$search=' . $search];
+        }
+
+        $urlParamString = "?" . implode("&", $urlParams);
+        $fullUrl = $url . $urlParamString;
 
         $client = new  \GuzzleHttp\Client();
         $response = $client->request('GET', $fullUrl, [
