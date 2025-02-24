@@ -1,38 +1,32 @@
 version: "3"
-
 services:
-    php:
-        build:
-            context: ./php
-            args:
-                TIMEZONE: ${TIMEZONE}
-        volumes:
-            - ../:/var/www/symfony:cached
-            - symfony_app_var:/var/www/symfony/var
-            - symfony_app_vendor:/var/www/symfony/vendor
-            - ./index.php:/var/www/index.php
-        networks:
-            - symfony_app
-            - db_network
     nginx:
         build:
-            context: ./nginx
+            context: ./build/nginx
+            dockerfile: Dockerfile
         volumes:
-            - ../:/var/www/symfony:cached
-            - ./index.php:/var/www/index.php
-            - symfony_app_var:/var/www/symfony/var
-            - symfony_app_vendor:/var/www/symfony/vendor
+            - /home/fsn/nutzerdatenbank-backend/docker:/var/www/project/:cached
         ports:
             - 8082:80
         networks:
             - symfony_app
             - db_network
-        env_file:
-            - .env.nginx.local
+    
+    fpm:
+        build:
+            context: ./build/php-fpm
+            dockerfile: Dockerfile
+        environment:
+            - DATABASE_URL=mysql://root:opwer384@db/nutzerdatenbank
+        volumes:
+            - /home/fsn/nutzerdatenbank-backend/docker:/var/www/project/:cached
+        networks:
+            - symfony_app
+            - db_network
 
-volumes:
-    symfony_app_var:
-    symfony_app_vendor:
+# volumes:
+#     symfony_app_var:
+#     symfony_app_vendor:
 
 networks:
   traefik_net:

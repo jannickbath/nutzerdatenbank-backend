@@ -266,18 +266,22 @@ class ApiController extends AbstractController
         $url = 'https://graph.microsoft.com/v1.0/users';
         // Microsoft API-Parameters
         $search = $req->query->get("search") ?? ""; //propertyName:propertyValue
-        $limit = $req->query->get("limit") ?? 10;
+        // $limit = $req->query->get("limit") ?? 10;
+        $top = $req->query->get("limit") ?? 10; // total page size of 5 users
+        $skip = $req->query->get("offset");  // Skip the first x users
         $count = true; // Retrieve total amount of matches
         $expand = "manager"; // Also include related infos about the (manager)
         $filter = "startswith(givenName, 'J')"; // Filters results based on specific criteria
-        $skip = 10; // Skip the first 10 users
-        $top = $req->query->get("top"); // total page size of 5 users
 
         $urlParams = [];
         $urlParamString = "";
 
         if (!empty($top)) {
-            $urlParams = [...$urlParams, '$top=' . $limit];
+            $urlParams = [...$urlParams, '$top=' . $top];
+        }
+
+        if (!empty($skip)) {
+            $urlParams = [...$urlParams, '$skip=' . $skip];
         }
 
         if (!empty($search)) {
@@ -287,7 +291,13 @@ class ApiController extends AbstractController
         $urlParamString = "?" . implode("&", $urlParams);
         $fullUrl = $url . $urlParamString;
 
-        $client = new  \GuzzleHttp\Client();
+        $client = new  \GuzzleHttp\Client([
+            "http_version" => 2.0,
+            "timeout" => 5,
+            "connect_timeout" => 2,
+            "handler" => \GuzzleHttp\HandlerStack::create(),
+        ]);
+
         $response = $client->request('GET', $fullUrl, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $_ENV["Microsoft_JWT_TOKEN"],
