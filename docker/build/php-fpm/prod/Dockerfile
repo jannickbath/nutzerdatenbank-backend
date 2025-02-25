@@ -37,7 +37,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY docker/build/php-fpm/opcache.ini /usr/local/etc/php/conf.d/
 COPY docker/build/php-fpm/custom.ini /usr/local/etc/php/conf.d/
 
-COPY public/index.php /var/www/public/index.php
+# COPY public/index.php /var/www/public/index.php
+# Build Context is the project root, specified in .github/workflows/deploy.yml
+COPY . /var/www/project
 
 RUN curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer
@@ -59,4 +61,4 @@ RUN chown -R www-data:www-data /var/www
 RUN mkdir -p /var/www/.composer
 RUN chown -R www-data:www-data /var/www/.composer
 
-WORKDIR /var/www/public/
+WORKDIR /var/www/project/
