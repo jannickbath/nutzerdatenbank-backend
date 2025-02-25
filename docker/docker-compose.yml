@@ -5,7 +5,7 @@ services:
             context: ./build/nginx
             dockerfile: Dockerfile
         volumes:
-            - /home/fsn/nutzerdatenbank-backend/docker:/var/www/project/:cached
+            - /home/fsn/nutzerdatenbank-backend:/var/www/project/:cached
         ports:
             - 8082:80
         networks:
@@ -19,7 +19,7 @@ services:
         environment:
             - DATABASE_URL=mysql://root:opwer384@db/nutzerdatenbank
         volumes:
-            - /home/fsn/nutzerdatenbank-backend/docker:/var/www/project/:cached
+            - /home/fsn/nutzerdatenbank-backend:/var/www/project/:cached
         networks:
             - symfony_app
             - db_network
