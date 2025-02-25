@@ -19,10 +19,10 @@ jobs:
 
       - name: Build and Push Nginx Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nutzerdatenbank-nginx:latest docker/build/nginx
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nutzerdatenbank-nginx:latest docker/build/nginx/prod
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nutzerdatenbank-nginx:latest
 
       - name: Build and Push PHP-FPM Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nutzerdatenbank-php-fpm:latest docker/build/php-fpm
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nutzerdatenbank-php-fpm:latest docker/build/php-fpm/prod
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/nutzerdatenbank-php-fpm:latest

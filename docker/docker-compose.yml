@@ -24,10 +24,6 @@ services:
             - symfony_app
             - db_network
 
-# volumes:
-#     symfony_app_var:
-#     symfony_app_vendor:
-
 networks:
   traefik_net:
     external: true
