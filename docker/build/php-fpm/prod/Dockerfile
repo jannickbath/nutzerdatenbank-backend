@@ -34,10 +34,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # gd \
     # intl
 
-COPY ../opcache.ini /usr/local/etc/php/conf.d/
-COPY ../custom.ini /usr/local/etc/php/conf.d/
+COPY docker/build/php-fpm/opcache.ini /usr/local/etc/php/conf.d/
+COPY docker/build/php-fpm/custom.ini /usr/local/etc/php/conf.d/
 
-COPY ../../../../public/index.php /var/www/public/index.php
+COPY public/index.php /var/www/public/index.php
 
 RUN curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer
