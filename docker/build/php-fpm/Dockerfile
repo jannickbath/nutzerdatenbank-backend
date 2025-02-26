@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg2 \
     sudo \
     ssh  \
+    mariadb-client \
     # docker-php-ext-install \
     # pdo_mysql \
     # soap \
@@ -46,6 +47,8 @@ RUN wget --no-check-certificate https://phar.phpunit.de/phpunit-6.5.3.phar && \
     mv phpunit*.phar phpunit.phar && \
     chmod +x phpunit.phar && \
     mv phpunit.phar /usr/local/bin/phpunit
+
+RUN docker-php-ext-install pdo_mysql
 
 RUN usermod -u 1000 www-data
 

@@ -17,7 +17,7 @@ services:
             context: ./build/php-fpm
             dockerfile: Dockerfile
         environment:
-            - DATABASE_URL=mysql://root:opwer384@db/nutzerdatenbank
+            - DATABASE_URL=mysql://root:opwer384@mysql/nutzerdatenbank
         volumes:
             - /home/fsn/nutzerdatenbank-backend:/var/www/project/:cached
         networks:
