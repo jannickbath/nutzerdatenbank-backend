@@ -51,8 +51,6 @@ RUN wget --no-check-certificate https://phar.phpunit.de/phpunit-6.5.3.phar && \
     chmod +x phpunit.phar && \
     mv phpunit.phar /usr/local/bin/phpunit
 
-RUN composer install
-
 RUN usermod -u 1000 www-data
 
 RUN usermod -a -G www-data root
@@ -64,3 +62,5 @@ RUN mkdir -p /var/www/.composer
 RUN chown -R www-data:www-data /var/www/.composer
 
 WORKDIR /var/www/project/
+
+RUN composer install
