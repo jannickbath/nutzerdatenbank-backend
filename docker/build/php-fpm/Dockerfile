@@ -41,7 +41,7 @@ COPY custom.ini /usr/local/etc/php/conf.d/
 RUN curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer
 
-RUN composer self-update 1.9.0
+RUN composer self-update
 
 RUN wget --no-check-certificate https://phar.phpunit.de/phpunit-6.5.3.phar && \
     mv phpunit*.phar phpunit.phar && \
@@ -61,3 +61,7 @@ RUN mkdir -p /var/www/.composer
 RUN chown -R www-data:www-data /var/www/.composer
 
 WORKDIR /var/www/project/
+
+USER www-data
+RUN git config --global --add safe.directory /var/www/project
+# RUN composer install

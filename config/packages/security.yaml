@@ -1,8 +1,3 @@
-#### FOR TESTING PURPOSES ONLY ####
-### Please use the security_orig.yaml before going in production ###
-## This file is responsible for a deactivated authentication process ##
-# Endpoints are not secured! #
-
 security:
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
@@ -14,19 +9,23 @@ security:
                 property: username
 
     firewalls:
+        login:
+            pattern: ^/login
+            stateless: true
+            json_login:
+                check_path: /login
+                username_path: username
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        login:
-            pattern:  ^/login
-            security: false
-
-        api:
-            pattern:   ^/api
-            security: false
-
-#### FOR TESTING PURPOSES ONLY ####
-### Please use the security_orig.yaml before going in production ###
-## This file is responsible for a deactivated authentication process ##
-# Endpoints are not secured! #
+    access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
