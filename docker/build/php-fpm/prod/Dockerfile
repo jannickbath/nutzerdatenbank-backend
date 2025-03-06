@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     ssh  \
     mariadb-client \
+    cron \
     # docker-php-ext-install \
     # pdo_mysql \
     # soap \
@@ -37,6 +38,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY docker/build/php-fpm/opcache.ini /usr/local/etc/php/conf.d/
 COPY docker/build/php-fpm/custom.ini /usr/local/etc/php/conf.d/
+COPY docker/build/php-fpm/crontab /var/spool/cron/crontabs/root
+COPY start.sh /start.sh
+RUN chmod 600 /var/spool/cron/crontabs/root
+# RUN chmod 600 /var/spool/cron/crontabs/www-data
+RUN chmod +x /start.sh
 
 # COPY public/index.php /var/www/public/index.php
 # Build Context is the project root, specified in .github/workflows/deploy.yml
@@ -69,3 +75,7 @@ WORKDIR /var/www/project/
 USER www-data
 RUN git config --global --add safe.directory /var/www/project
 RUN composer install
+
+USER root
+
+ENTRYPOINT [ "/start.sh" ]

@@ -14,6 +14,7 @@ use Exception;
 
 // You can run the command from the command line like this
 // php bin/console sync-microsoft-users
+// Executed by cron job
 #[AsCommand(
     name: 'sync-microsoft-users',
     description: 'Sync Microsoft users with the local database',

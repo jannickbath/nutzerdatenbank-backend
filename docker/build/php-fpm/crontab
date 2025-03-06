@@ -1,0 +1,1 @@
+*/15 * * * * /usr/local/bin/php /var/www/project/bin/console sync-microsoft-users >> /var/log/symfony-sync.log 2>&1
