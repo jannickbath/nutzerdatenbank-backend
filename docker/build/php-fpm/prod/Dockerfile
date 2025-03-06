@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY docker/build/php-fpm/opcache.ini /usr/local/etc/php/conf.d/
 COPY docker/build/php-fpm/custom.ini /usr/local/etc/php/conf.d/
 COPY docker/build/php-fpm/crontab /var/spool/cron/crontabs/root
-COPY start.sh /start.sh
+COPY docker/build/php-fpm/start.sh /start.sh
 RUN chmod 600 /var/spool/cron/crontabs/root
 # RUN chmod 600 /var/spool/cron/crontabs/www-data
 RUN chmod +x /start.sh
