@@ -6,6 +6,7 @@ use App\Entity\Adress;
 use App\Entity\User;
 use App\Repository\AdressRepository;
 use App\Repository\UserRepository;
+use App\SQL\MicrosoftUsers;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +20,7 @@ class ApiController extends AbstractController
 {
     private Request|null $req = null;
 
-    public function __construct(private EntityManagerInterface $entityManager, private UserRepository $uR, private AdressRepository $aR) { }
+    public function __construct(private EntityManagerInterface $entityManager, private UserRepository $uR, private AdressRepository $aR, private MicrosoftUsers $microsoftUsers) { }
 
     #[Route('/api/users', name: 'get_users', methods: ["GET"])]
     public function get_users(Request $req): JsonResponse
@@ -231,23 +232,54 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/microsoft_users', name: 'microsoft_users', methods: ["GET"])]
-    public function listMicrosoftUsers(Request $req) {
-        $url = 'https://graph.microsoft.com/v1.0/users';
-        $search = $req->query->get("search") ?? "";
-        $limit = $req->query->get("limit") ?? 10;
-        $urlParams = '?$top=' . $limit . '&$search="displayName:' . $search . '"';
-        $fullUrl = $url . $urlParams;
+    public function listMicrosoftUsers(Request $req) {        
+        $this->req = $req;
+        $search = $req->query->get("search");
+        $filter = $req->query->get("filter");
+        $limit = $req->query->get("limit") ?? 4;
+        $offset = $req->query->get("offset") ?? 0;
+        $id = $req->query->get("id");
+        $options = ["limit" => $limit, "offset" => $offset];
+        $categories = [];
+        $userRepository = $this->microsoftUsers;
 
-        if (empty($search)) {
-            return new JsonResponse(["error" => true, "message" => "Please provide a search term in the query."]);
+        // Specific user id given -> fetch user details
+        if ($id != null || $id === 0) {
+            $user = $userRepository->getUserById($id);
+            
+            if (empty($user)) {
+                return $this->json([
+                    "users" => [],
+                    "error" => "User-ID $id does not exist."
+                ]);
+            }
+
+            return $this->json([
+                "users" => $user
+            ]);
         }
 
-        $client = new  \GuzzleHttp\Client();
-        $response = $client->request('GET', $fullUrl, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $_ENV["Microsoft_JWT_TOKEN"],
-                'ConsistencyLevel' => 'eventual'
-            ]
+        if (!empty($filter)) {
+            $categories = explode(",", $filter);
+        }
+
+        if (empty($search)) {
+            return $this->json([
+                'users' => $userRepository->getAllUsers($options),
+                'code' => 200,
+            ]);
+        }
+
+        if (!empty($categories)) {
+            return $this->json([
+                'users' => $userRepository->getUsersBySearchAndCategory($search, $categories, $options),
+                'code' => 200,
+            ]);
+        }
+        
+        return $this->json([
+            'users' => $userRepository->getUsersBySearch($search, $options),
+            'code' => 200,
         ]);
 
         return new JsonResponse(json_decode($response->getBody()));
